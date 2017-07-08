@@ -1,8 +1,10 @@
 // Enemies our player must avoid
-var Enemy = function() {
+var Enemy = function(y) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
-
+    this.x = 0;
+    this.y = y;
+    this.speed = Math.random()*3 + 1;
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
@@ -14,23 +16,93 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    this.x += this.speed*dt;
+    if ( this.x > 5){
+        this.x=-1;
+        this.y= Math.floor(Math.random()*3);
+        this.speed = Math.random()*3 + 1;
+    }
 };
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y * 83 + 50);
 };
 
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
+var Player = function(){
+    this.x,this.y;
+    this.reset();
+    this.sprite = 'images/char-boy.png';
+}
 
+Player.prototype.update = function(){
+    //ends game
+    this.checkCollisions();
+    this.checkWin();
+}
 
+Player.prototype.render = function(){
+    ctx.drawImage(Resources.get(this.sprite), this.x * 101, this.y*83 - 20);
+}
+
+Player.prototype.handleInput = function(dir){
+    switch (dir){
+        case 'left':
+            if(this.x>0){
+                this.x=this.x -1;
+            }
+            break;
+        case 'right':
+            if(this.x<4){
+                this.x++;
+            }
+            break;
+        case 'up':
+            if(this.y>0){
+                this.y--;
+            }
+            break;
+        case 'down':
+            if(this.y<5){
+                this.y++;
+            }
+            break;
+    }
+}
+
+Player.prototype.reset=function(){
+    this.x = 2;
+    this.y = 5;
+}
+
+Player.prototype.checkWin = function(){
+    if(this.y<1){
+        allEnemies = [];
+        this.handleInput = function(){
+        };
+    }
+}
+
+Player.prototype.checkCollisions = function(){
+    //checks if player hits any bugs
+    for ( var i = 0; i < allEnemies.length; i++){
+        if(Math.abs(allEnemies[i].x-this.x)<.5 && allEnemies[i].y+1 == this.y){
+            this.reset();
+        }
+    }
+}
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 // Place the player object in a variable called player
+var player = new Player();
+var allEnemies = [];
 
-
+for ( var i = 0; i < 3; i++){
+    allEnemies.push(new Enemy(i));
+}
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
